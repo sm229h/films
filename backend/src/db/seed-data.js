@@ -3,8 +3,9 @@
  *
  * IMPORTANT: this is SAMPLE data, not a licensed catalogue. Titles, years,
  * ratings and cast are public factual metadata used to make the app realistic;
- * posters/backdrops are placeholder photographs, and stream URLs point at public
- * sample videos — not at any real film. See README.md ("داده‌های نمونه").
+ * posters/backdrops are the real artwork of those titles (public TMDB image CDN),
+ * while stream URLs point at public sample videos — not at any real film file.
+ * See README.md ("داده‌های نمونه").
  */
 
 export const countries = [

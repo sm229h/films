@@ -10,6 +10,7 @@ import {
   SAMPLE_STREAMS,
   titles,
 } from './seed-data.js';
+import { personArtwork, titleArtwork, TMDB_IMAGE_BASE } from './artwork-data.js';
 import { hashPassword } from '../lib/auth.js';
 import { DEFAULT_SETTINGS } from '../services/settings.js';
 
@@ -18,10 +19,18 @@ const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || 'CineVerse!2024';
 const USER_EMAIL = process.env.SEED_USER_EMAIL || 'user@cineverse.local';
 const USER_PASSWORD = process.env.SEED_USER_PASSWORD || 'CineVerse!2024';
 
-// Placeholder artwork. The app labels these as sample images and falls back to a
-// generated gradient when they cannot be loaded.
-const posterFor = (slug) => `https://picsum.photos/seed/cv-${slug}/500/750`;
-const backdropFor = (slug) => `https://picsum.photos/seed/cv-${slug}-bd/1600/900`;
+// Real artwork for the sample catalogue — posters, 16:9 backdrops, season
+// posters and headshots — delivered from the public TMDB image CDN. Paths live
+// in artwork-data.js; an unknown title/person stays null and the UI falls back
+// to its generated gradient.
+const artworkUrl = (size, path) => (path ? `${TMDB_IMAGE_BASE}/${size}${path}` : null);
+const posterFor = (slug) =>
+  artworkUrl('w500', titleArtwork[slug]?.poster ?? titleArtwork[slug]?.backdrop);
+const backdropFor = (slug) =>
+  artworkUrl('w1280', titleArtwork[slug]?.backdrop ?? titleArtwork[slug]?.poster);
+const seasonPosterFor = (slug, seasonNumber) =>
+  artworkUrl('w500', titleArtwork[slug]?.seasons?.[seasonNumber] ?? titleArtwork[slug]?.poster);
+const personPhotoFor = (slug) => artworkUrl('w300', personArtwork[slug]);
 const SAMPLE_TRAILER =
   'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
 
@@ -52,14 +61,9 @@ async function seedTaxonomy() {
       `INSERT INTO people (slug, name_en, name_fa, photo_url, birth_year)
        VALUES ($1,$2,$3,$4,$5)
        ON CONFLICT (slug) DO UPDATE SET name_fa = EXCLUDED.name_fa,
-                                        name_en = EXCLUDED.name_en`,
-      [
-        person.slug,
-        person.nameEn,
-        person.nameFa,
-        `https://picsum.photos/seed/cv-p-${person.slug}/300/300`,
-        person.birth,
-      ],
+                                        name_en = EXCLUDED.name_en,
+                                        photo_url = EXCLUDED.photo_url`,
+      [person.slug, person.nameEn, person.nameFa, personPhotoFor(person.slug), person.birth],
     );
   }
 }
@@ -155,7 +159,8 @@ async function seedTitles() {
            VALUES ($1,$2,$3,$4,$5,$6)
            ON CONFLICT (content_id, season_number)
            DO UPDATE SET title_fa = EXCLUDED.title_fa, synopsis = EXCLUDED.synopsis,
-                         air_year = EXCLUDED.air_year, episode_count = EXCLUDED.episode_count
+                         air_year = EXCLUDED.air_year, poster_url = EXCLUDED.poster_url,
+                         episode_count = EXCLUDED.episode_count
            RETURNING id`,
           [
             contentId,
@@ -163,7 +168,7 @@ async function seedTitles() {
             `فصل ${seasonNumber}`,
             `${title.fa} — فصل ${seasonNumber}`,
             title.y + seasonNumber - 1,
-            posterFor(`${title.s}-s${seasonNumber}`),
+            seasonPosterFor(title.s, seasonNumber),
           ],
         );
         const seasonId = seasonRows[0].id;
@@ -185,7 +190,8 @@ async function seedTitles() {
               `قسمت ${episodeNumber} از فصل ${seasonNumber} مجموعه ${title.fa}.`,
               40 + ((episodeNumber * 7) % 25),
               `${title.y + seasonNumber - 1}-01-01`,
-              backdropFor(`${title.s}-s${seasonNumber}e${episodeNumber}`),
+              // Episode stills reuse the series backdrop: real 16:9 artwork from the show.
+              backdropFor(title.s),
             ],
           );
         }

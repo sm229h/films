@@ -23,6 +23,17 @@ App services run from the bind-mounted source with live reload. Dependency
 `node_modules` live in named volumes and are installed by the compose startup
 commands — never install them on the sandbox host.
 
+## Artwork in the sample data
+
+`backend/src/db/artwork-data.js` maps every seeded title/person slug to its real
+artwork path on the public TMDB image CDN; `seed.js` expands those into absolute
+URLs (title poster `w500`, backdrop `w1280`, season poster `w500`, person `w300`).
+The paths were resolved once with a throwaway script — never add runtime scraping
+to the app. A slug with no entry seeds `NULL` and the UI shows its gradient
+fallback, so a new title needs an entry here to get a poster. Re-running the seed
+re-applies artwork because the upserts update `poster_url` / `photo_url`,
+including season posters.
+
 ## Verifying the app works
 
 1. `docker compose -f docker-compose.base44.yml ps` — `db`, `api` and `web` should be `healthy`.
