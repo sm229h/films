@@ -1,12 +1,17 @@
 /**
  * Thin fetch wrapper.
  *
- * Every request is same-origin (`/api/...` is proxied by the dev server / the
- * production reverse proxy), so session cookies are sent automatically with
- * `credentials: 'include'` and no CORS configuration is required.
+ * - Development / single-origin deploy: same-origin (`/api/...` is proxied by
+ *   the dev server / the production reverse proxy), so no CORS is required.
+ * - Split deploy (static host + separate API): set `VITE_API_BASE_URL` at build
+ *   time (e.g. `https://api.example.com`) and requests go there directly with
+ *   `credentials: 'include'`. In that case the API must list the frontend
+ *   origin in `CORS_ORIGINS` and use a cross-site cookie
+ *   (`COOKIE_SAMESITE=none` + `COOKIE_SECURE=1`).
  */
 
-const BASE = '/api/v1';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+const BASE = `${API_BASE_URL}/api/v1`;
 
 export class ApiError extends Error {
   constructor(message, status, details) {

@@ -44,12 +44,16 @@ export async function purgeExpiredSessions() {
   await query('DELETE FROM user_sessions WHERE expires_at < now()');
 }
 
-export const sessionCookieOptions = () => ({
-  httpOnly: true,
-  secure: config.cookieSecure,
-  sameSite: 'lax',
-  path: '/',
-});
+export const sessionCookieOptions = () => {
+  // SameSite=None (split deploy across origins) only works with Secure.
+  const sameSite = config.cookieSameSite === 'none' ? 'none' : config.cookieSameSite;
+  return {
+    httpOnly: true,
+    secure: sameSite === 'none' ? true : config.cookieSecure,
+    sameSite,
+    path: '/',
+  };
+};
 
 export function setSessionCookie(res, token) {
   res.cookie(config.sessionCookieName, token, {

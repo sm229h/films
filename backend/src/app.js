@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import express from 'express';
@@ -72,8 +73,45 @@ export function createApp() {
 
   app.use('/api/v1', apiV1);
 
+  // Optional single-service deploy: serve the built frontend (Vite `dist`)
+  // from the API process. Disabled by default so split deploys (static host +
+  // separate API) and the dev proxy keep working exactly as before.
+  // Enable with SERVE_FRONTEND=1 and optionally FRONTEND_DIST_DIR=/path/to/dist.
+  const frontendDir = resolveFrontendDir();
+  if (frontendDir) {
+    app.use(express.static(frontendDir, { maxAge: '1h', index: false }));
+    // SPA fallback: anything that is not /api/* returns index.html.
+    app.get(/^(?!\/api\/).*/, (_req, res, next) => {
+      res.sendFile(path.join(frontendDir, 'index.html'), (error) => {
+        if (error) next();
+      });
+    });
+  }
+
   app.use(notFoundHandler);
   app.use(errorHandler);
 
   return app;
+}
+
+function resolveFrontendDir() {
+  const candidates = [
+    config.frontendDistDir,
+    // Production single-image layout: backend + copied frontend dist.
+    path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'app'),
+    // Monorepo layout: backend/../frontend/dist.
+    path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'frontend', 'dist'),
+  ].filter(Boolean);
+
+  // Explicit opt-in wins; otherwise serve automatically if a build exists,
+  // so a combined production image works without extra env configuration.
+  if (config.serveFrontend && config.frontendDistDir) return config.frontendDistDir;
+  for (const dir of candidates) {
+    try {
+      if (dir && fs.existsSync(path.join(dir, 'index.html'))) return dir;
+    } catch {
+      // Ignore and try the next candidate.
+    }
+  }
+  return null;
 }

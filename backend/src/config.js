@@ -31,6 +31,13 @@ export const config = {
   cookieSecure: process.env.COOKIE_SECURE === '1',
 
   /**
+   * Cookie SameSite mode: 'lax' (default, single-origin) or 'none'
+   * (split deploy: frontend on a different origin than the API).
+   * `SameSite=None` requires `Secure`, so it is force-enabled below.
+   */
+  cookieSameSite: (process.env.COOKIE_SAMESITE || 'lax').toLowerCase(),
+
+  /**
    * Allowed CORS origins. Empty means "same-origin only" (the web dev server
    * proxies /api, so no cross-origin request is needed).
    */
@@ -47,12 +54,23 @@ export const config = {
 
   /** Sandbox preview flag supplied by the platform. */
   previewMode: process.env.BASE44_PREVIEW_MODE === '1',
+
+  /**
+   * Optional single-service deploy: when set (or when the directory exists),
+   * the API also serves the built frontend (SPA fallback, API routes excluded).
+   */
+  serveFrontend:
+    process.env.SERVE_FRONTEND === '1' || process.env.SERVE_FRONTEND === 'true',
+  frontendDistDir: process.env.FRONTEND_DIST_DIR || '',
 };
 
 export function assertRuntimeConfig() {
   const problems = [];
   if (!config.jwtSecret || config.jwtSecret.length < 16) {
     problems.push('JWT_SECRET is missing or too short (min 16 characters).');
+  }
+  if (!['lax', 'strict', 'none'].includes(config.cookieSameSite)) {
+    problems.push('COOKIE_SAMESITE must be one of: lax, strict, none.');
   }
   if (problems.length) {
     throw new Error(`Invalid runtime configuration:\n - ${problems.join('\n - ')}`);
