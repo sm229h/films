@@ -65,6 +65,8 @@ There is no test suite; verification is done by exercising the app.
   hosts — managed PG poolers use self-signed chains Node would otherwise reject
   («self-signed certificate in certificate chain»). `PG_SSL_VERIFY=1` forces
   strict verification; pool size shrinks to 3 when `VERCEL` is set.
+  `?sslmode=*` params are stripped from the connection string first because
+  node-postgres lets the parsed URL overwrite the explicit `ssl` option.
 
 ## Seeded development accounts (created by the seed step)
 

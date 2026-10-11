@@ -7,7 +7,12 @@ pg.types.setTypeParser(pg.types.builtins.INT8, (value) => Number.parseInt(value,
 pg.types.setTypeParser(pg.types.builtins.NUMERIC, (value) => Number.parseFloat(value));
 
 export const pool = new pg.Pool({
-  connectionString: config.databaseUrl,
+  // NOTE: node-postgres lets query-string SSL params (e.g. `?sslmode=require`,
+  // which Neon/Vercel Postgres URLs include) overwrite the `ssl` option below,
+  // and `require` verifies the chain by default — managed poolers present
+  // self-signed chains, hence «self-signed certificate in certificate chain».
+  // We strip those params and set `ssl` explicitly instead.
+  connectionString: sanitizeConnectionString(config.databaseUrl),
   // Serverless instances each hold their own pool — keep it small on Vercel
   // so concurrent instances can't exhaust the managed database.
   max: toInt(process.env.PG_POOL_MAX, process.env.VERCEL ? 3 : 10),
@@ -35,6 +40,18 @@ function isRemoteDatabase(connectionString = '') {
     return hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '::1';
   } catch {
     return false;
+  }
+}
+
+function sanitizeConnectionString(connectionString = '') {
+  try {
+    const url = new URL(connectionString);
+    for (const param of ['sslmode', 'sslcert', 'sslkey', 'sslrootcert', 'sslnegotiation']) {
+      url.searchParams.delete(param);
+    }
+    return url.toString();
+  } catch {
+    return connectionString;
   }
 }
 
