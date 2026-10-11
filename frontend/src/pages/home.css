@@ -1,0 +1,142 @@
+/* ==========================================================================
+   Home page specifics
+   ========================================================================== */
+
+.home {
+  padding-bottom: var(--space-7);
+}
+
+.home__genres {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-7);
+}
+
+.chip--skeleton {
+  width: 84px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border-color: transparent;
+  animation: pulse 1.4s var(--ease) infinite;
+  padding: 0;
+  display: inline-block;
+}
+
+.home__banner {
+  position: relative;
+  display: block;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: var(--space-7);
+  min-height: 180px;
+  border: 1px solid var(--border);
+}
+.home__banner img {
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  object-fit: cover;
+  max-height: 280px;
+}
+.home__banner-text {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: linear-gradient(to top, rgba(6, 8, 12, 0.95), transparent);
+}
+.home__banner-text strong {
+  font-size: 20px;
+}
+.home__banner-text span {
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+/* -------------------------------------------------------- subscription CTA -- */
+
+.promo {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(229, 9, 20, 0.28);
+  background:
+    radial-gradient(circle at 85% 15%, rgba(229, 9, 20, 0.22), transparent 55%),
+    linear-gradient(135deg, #171b26 0%, #101319 60%, #171b26 100%);
+  margin-bottom: var(--space-7);
+  padding: var(--space-7) var(--space-6);
+}
+
+.promo__glow {
+  position: absolute;
+  inset-block: -40%;
+  inset-inline-start: -10%;
+  width: 380px;
+  background: radial-gradient(circle, rgba(229, 9, 20, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.promo__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 620px;
+}
+
+.promo__title {
+  font-size: clamp(22px, 3vw, 30px);
+}
+
+.promo__text {
+  color: var(--text-muted);
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+.promo__benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-2) var(--space-4);
+  margin-block: var(--space-2);
+}
+.promo__benefits li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13.5px;
+  color: #dbe0e8;
+}
+.promo__benefits .icon {
+  color: var(--success);
+}
+
+.promo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.promo__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .promo {
+    padding: var(--space-5) var(--space-4);
+  }
+  .promo__benefits {
+    grid-template-columns: 1fr;
+  }
+}
