@@ -1,0 +1,119 @@
+# Base44 sandbox / development stack.
+#
+# Runs the app from the cloned source (bind-mounted) with live reload — never
+# from a prebuilt image. Local services (Postgres) are provisioned here with
+# development credentials; external credentials are delivered by the platform
+# through /run/base44/app.env, which is always listed LAST so it wins.
+#
+# Usage: docker compose -f docker-compose.base44.yml up -d --build
+name: cineverse
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: cineverse
+      POSTGRES_PASSWORD: cineverse
+      POSTGRES_DB: cineverse
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cineverse -d cineverse']
+      interval: 5s
+      timeout: 5s
+      retries: 24
+    restart: on-failure
+
+  # One-shot: installs API dependencies, applies migrations, seeds sample data.
+  # Everything after it waits for a clean exit.
+  migrate:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
+    env_file:
+      - ./backend/.env.base44-defaults
+      - /run/base44/app.env
+    environment:
+      - DATABASE_URL=postgres://cineverse:cineverse@db:5432/cineverse
+    command:
+      - sh
+      - -ec
+      - |
+        npm install --no-audit --no-fund --prefer-offline
+        node src/db/migrate.js
+        node src/db/seed.js
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+
+  api:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    volumes:
+      - ./backend:/app
+      - backend-node-modules:/app/node_modules
+    env_file:
+      - ./backend/.env.base44-defaults
+      - /run/base44/app.env
+    environment:
+      - DATABASE_URL=postgres://cineverse:cineverse@db:5432/cineverse
+      - PORT=8000
+      - BASE44_PREVIEW_MODE
+    command: ['sh', '-ec', 'exec node --watch src/server.js']
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:8000/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: on-failure
+
+  web:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    environment:
+      - BASE44_PREVIEW_MODE
+      - BASE44_SANDBOX_HOST_DOMAIN
+      # Vite >= 6.1 appends this to server.allowedHosts (platform-provided).
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+      - VITE_API_PROXY_TARGET=http://api:8000
+    command:
+      - sh
+      - -ec
+      - |
+        npm install --no-audit --no-fund --prefer-offline
+        exec npm run dev -- --host 0.0.0.0 --port 5173
+    ports:
+      - '3000:5173'
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:5173/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 40s
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  db-data:
+  backend-node-modules:
+  frontend-node-modules:

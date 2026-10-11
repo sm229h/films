@@ -1,0 +1,19 @@
+node_modules/
+dist/
+build/
+coverage/
+
+# Environment files — never commit real values
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp

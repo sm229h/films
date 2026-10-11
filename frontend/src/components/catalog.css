@@ -1,0 +1,224 @@
+/* ==========================================================================
+   Filter bar, segmented control, range, pagination
+   ========================================================================== */
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  margin-bottom: var(--space-5);
+}
+
+.filters__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.filters__search {
+  flex: 1 1 220px;
+  min-width: 200px;
+}
+
+.filters__sort {
+  width: 170px;
+  flex: none;
+}
+
+.filters__reset {
+  margin-inline-start: auto;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  flex: none;
+}
+
+.segmented__item {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.segmented__item:hover {
+  color: var(--text);
+}
+.segmented__item.is-active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.filters__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+}
+
+.filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.filters__label {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.filters__value {
+  color: var(--text);
+}
+
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  margin-top: 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+.range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid #fff;
+  cursor: pointer;
+}
+
+.filters__count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.pagination__cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.pagination__gap {
+  color: var(--text-dim);
+}
+.pagination__page {
+  min-width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-muted);
+  font-size: 13px;
+  transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.pagination__page:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.pagination__page.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------- search page -- */
+
+.search-hints {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.search-hints__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+.search-hints__chips .chip {
+  cursor: pointer;
+}
+
+.search-people {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+.search-people__list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(180px, 220px);
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+.search-people__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-elevated);
+  transition: border-color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.search-people__item:hover {
+  border-color: var(--border-strong);
+  background: var(--surface);
+}
+.search-people__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 13px;
+}
+.search-people__text strong {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .filters {
+    padding: var(--space-3);
+  }
+  .filters__sort {
+    width: 100%;
+  }
+  .filters__reset {
+    margin-inline-start: 0;
+  }
+  .filters__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

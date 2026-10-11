@@ -1,0 +1,114 @@
+/* ==========================================================================
+   Profile page
+   ========================================================================== */
+
+.profile__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.profile__avatar {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 700;
+  flex: none;
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.3);
+}
+
+.profile__logout {
+  margin-inline-start: auto;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: var(--space-5);
+}
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tabs__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px var(--space-4);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.tabs__item:hover {
+  color: var(--text);
+}
+.tabs__item.is-active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.profile__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  padding: var(--space-5);
+}
+
+.panel__title {
+  font-size: 16px;
+  margin-bottom: var(--space-4);
+}
+
+.subscription-active {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14.5px;
+  margin-bottom: var(--space-4);
+}
+
+.continue-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.continue-item__meta {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.profile__panel {
+  min-height: 240px;
+}
+
+@media (max-width: 640px) {
+  .panel {
+    padding: var(--space-4);
+  }
+  .profile__logout {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+}

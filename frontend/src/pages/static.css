@@ -1,0 +1,78 @@
+/* ==========================================================================
+   Informational pages + 404
+   ========================================================================== */
+
+.notfound {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  padding-block: var(--space-8);
+}
+
+.notfound__code {
+  font-size: clamp(64px, 12vw, 120px);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.9;
+}
+
+.notfound__title {
+  font-size: clamp(20px, 3vw, 28px);
+}
+
+.notfound__actions {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
+
+.prose {
+  max-width: 78ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  line-height: 2;
+  color: var(--text-muted);
+}
+
+.prose h2 {
+  color: var(--text);
+  font-size: 17px;
+  margin-top: var(--space-3);
+}
+
+.prose p {
+  font-size: 14.5px;
+}
+
+.prose ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.prose li {
+  font-size: 14.5px;
+  padding-inline-start: var(--space-4);
+  position: relative;
+}
+
+.prose li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.85em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.prose a {
+  color: var(--accent);
+}
