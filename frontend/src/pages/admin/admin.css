@@ -273,6 +273,100 @@
   object-fit: cover;
 }
 
+.admin__desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.admin-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--space-3);
+}
+
+.admin-row--ghost {
+  height: 68px;
+  animation: admin-pulse 1.4s ease-in-out infinite;
+}
+@keyframes admin-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.admin-row--stack {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-row__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+.admin-role-select {
+  width: 150px;
+  flex: none;
+}
+
+.admin-episodes {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--space-2);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+.admin-episodes li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.admin-note {
+  font-size: 12.5px;
+  color: var(--text-dim);
+}
+
+.admin-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.admin-section > .admin-card {
+  flex: 1 1 auto;
+}
+.admin-section__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.form-actions--end {
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
 @media (max-width: 900px) {
   .admin {
     grid-template-columns: 1fr;
@@ -283,11 +377,15 @@
     border-inline-end: none;
     border-bottom: 1px solid var(--border);
     gap: var(--space-4);
+    /* Let the sidebar shrink to the viewport instead of being widened by the
+       nowrap nav links, which would otherwise force the page to scroll. */
+    min-width: 0;
   }
   .admin__nav {
     flex-direction: row;
     overflow-x: auto;
     padding-bottom: var(--space-2);
+    min-width: 0;
   }
   .admin__link {
     white-space: nowrap;
