@@ -262,11 +262,14 @@
   border-inline-start: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  transform: translateX(-100%);
+  /* Closed: the panel parks fully past the edge it opens from. The sign has to
+     follow the physical side (LTR: inline-end is the right edge, so shift right;
+     RTL: it is the left edge, so shift left) — translateX is not direction-aware. */
+  transform: translateX(100%);
   transition: transform var(--dur) var(--ease);
 }
 [dir='rtl'] .drawer__panel {
-  transform: translateX(100%);
+  transform: translateX(-100%);
 }
 .drawer.is-open .drawer__panel {
   transform: none;
