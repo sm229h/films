@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import 'dotenv/config';
 
 const toInt = (value, fallback) => {
@@ -12,6 +13,23 @@ const toList = (value) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+function resolveJwtSecret() {
+  const raw = process.env.JWT_SECRET || '';
+  if (raw.length >= 16) return raw;
+  if (raw) {
+    console.warn(
+      '[config] JWT_SECRET is too short (<16 chars) and will be ignored — ' +
+        'using an ephemeral secret. Sessions reset on restart.',
+    );
+  } else {
+    console.warn(
+      '[config] JWT_SECRET is not set — using an ephemeral secret. ' +
+        'Set JWT_SECRET (min 16 chars) for stable logins.',
+    );
+  }
+  return crypto.randomBytes(48).toString('hex');
+}
+
 /**
  * Central runtime configuration. Every value can be overridden through the
  * environment; nothing here is a real credential.
@@ -23,9 +41,15 @@ export const config = {
 
   databaseUrl:
     process.env.DATABASE_URL ||
+    // Vercel Postgres integration provides these automatically — prefer the
+    // pooled connection string for serverless.
+    process.env.POSTGRES_PRISMA_URL ||
+    process.env.POSTGRES_URL ||
     'postgres://cineverse:cineverse@localhost:5432/cineverse',
 
-  jwtSecret: process.env.JWT_SECRET || '',
+  // Zero-config boot: when no usable secret is provided, an ephemeral one is
+  // generated (logins reset on restart). Set JWT_SECRET for stable sessions.
+  jwtSecret: resolveJwtSecret(),
   jwtTtlDays: toInt(process.env.JWT_TTL_DAYS, 7),
   sessionCookieName: process.env.SESSION_COOKIE_NAME || 'cv_session',
   cookieSecure: process.env.COOKIE_SECURE === '1',

@@ -1,0 +1,16 @@
+{
+  "name": "cineverse",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "npm --workspace @cineverse/web run build",
+    "start": "npm --workspace @cineverse/api run start",
+    "migrate": "npm --workspace @cineverse/api run migrate",
+    "seed": "npm --workspace @cineverse/api run seed"
+  }
+}

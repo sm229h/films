@@ -45,6 +45,23 @@ including season posters.
 
 There is no test suite; verification is done by exercising the app.
 
+## Unified production deploy (Vercel, single service)
+
+* Root `package.json` declares npm workspaces (`backend`, `frontend`) — keep the
+  `@cineverse/api` / `@cineverse/web` names in sync with it. Do not delete the
+  nested `backend/package-lock.json` / `frontend/package-lock.json`; the docker
+  dev services install standalone from them.
+* `vercel.json` (root) publishes `frontend/dist` and rewrites `/api/*` to the
+  `api/index.js` serverless function, which wraps `createApp()` and awaits
+  `ensureDatabaseReady()` first. Frontend must be built with empty
+  `VITE_API_BASE_URL` (same-origin).
+* `backend/src/db/init.js` auto-applies migrations on first request and seeds
+  only when the users table is empty (seed is idempotent via upserts). Never
+  seed when users exist.
+* `config.js` reads `DATABASE_URL` → `POSTGRES_PRISMA_URL` → `POSTGRES_URL`
+  (Vercel Postgres provides the latter two automatically) and falls back to an
+  ephemeral `JWT_SECRET` with a loud warning when none is configured.
+
 ## Seeded development accounts (created by the seed step)
 
 | email | password | role |

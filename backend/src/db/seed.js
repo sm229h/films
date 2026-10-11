@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { pool, query, withTransaction } from './pool.js';
 import { runMigrations } from './migrate.js';
 import {
@@ -400,10 +402,27 @@ async function main() {
   log(`(${accounts.length} demo accounts — development only, documented in README)`);
 }
 
-main()
-  .then(() => pool.end())
-  .catch(async (error) => {
-    console.error(`[seed] failed: ${error.message}`);
-    await pool.end();
-    process.exit(1);
-  });
+/**
+ * Seed everything except migrations. Idempotent (upserts), so it is safe to
+ * call when the database already has data — existing rows are refreshed.
+ * Used by serverless boot (`db/init.js`) when the users table is empty.
+ */
+export async function runSeed() {
+  await seedTaxonomy();
+  await seedTitles();
+  await seedPresentation();
+  await seedDemoAccounts();
+}
+
+const invokedDirectly =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (invokedDirectly) {
+  main()
+    .then(() => pool.end())
+    .catch(async (error) => {
+      console.error(`[seed] failed: ${error.message}`);
+      await pool.end();
+      process.exit(1);
+    });
+}
