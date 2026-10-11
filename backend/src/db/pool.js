@@ -8,9 +8,35 @@ pg.types.setTypeParser(pg.types.builtins.NUMERIC, (value) => Number.parseFloat(v
 
 export const pool = new pg.Pool({
   connectionString: config.databaseUrl,
-  max: 10,
+  // Serverless instances each hold their own pool — keep it small on Vercel
+  // so concurrent instances can't exhaust the managed database.
+  max: toInt(process.env.PG_POOL_MAX, process.env.VERCEL ? 3 : 10),
   idleTimeoutMillis: 30_000,
+  // Fail fast instead of hanging a serverless invocation on a dead database.
+  connectionTimeoutMillis: 8_000,
+  // Managed Postgres (Neon / Vercel Postgres / Supabase pooler) terminates TLS
+  // with certificates Node can't verify (self-signed chain). Local docker PG
+  // has no TLS at all, so only enable SSL for remote hosts. Set
+  // PG_SSL_VERIFY=1 to force strict verification.
+  ...(isRemoteDatabase(config.databaseUrl)
+    ? { ssl: { rejectUnauthorized: process.env.PG_SSL_VERIFY === '1' } }
+    : {}),
 });
+
+function toInt(value, fallback) {
+  if (value === undefined || value === null || value === '') return fallback;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function isRemoteDatabase(connectionString = '') {
+  try {
+    const { hostname } = new URL(connectionString);
+    return hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '::1';
+  } catch {
+    return false;
+  }
+}
 
 pool.on('error', (error) => {
   console.error('[db] idle client error', error.message);

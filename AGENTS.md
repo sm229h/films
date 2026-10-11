@@ -61,6 +61,10 @@ There is no test suite; verification is done by exercising the app.
 * `config.js` reads `DATABASE_URL` → `POSTGRES_PRISMA_URL` → `POSTGRES_URL`
   (Vercel Postgres provides the latter two automatically) and falls back to an
   ephemeral `JWT_SECRET` with a loud warning when none is configured.
+* `db/pool.js` enables TLS (`rejectUnauthorized: false`) only for non-localhost
+  hosts — managed PG poolers use self-signed chains Node would otherwise reject
+  («self-signed certificate in certificate chain»). `PG_SSL_VERIFY=1` forces
+  strict verification; pool size shrinks to 3 when `VERCEL` is set.
 
 ## Seeded development accounts (created by the seed step)
 
